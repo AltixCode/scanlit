@@ -15,7 +15,14 @@ process.env.EXPO_OS = process.env.EXPO_OS || 'ios';
 
 // Reanimated's worklet runtime is native-only. The shipped mock renders the
 // animated components synchronously, which is what component tests need.
-jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
+jest.mock('react-native-reanimated', () => {
+  // Reanimated's own mock omits getUseOfValueInStyleWarning — its source literally says
+  // "ADD ME IF NEEDED". The babel plugin injects a call to it around every inline style
+  // object, so without this any screen with an inline style throws
+  // "getUseOfValueInStyleWarning is not a function" at render time, in tests only.
+  const mock = require('react-native-reanimated/mock');
+  return { ...mock, getUseOfValueInStyleWarning: () => undefined };
+});
 
 jest.mock('expo-haptics', () => ({
   impactAsync: jest.fn(),
@@ -113,5 +120,43 @@ jest.mock('expo-router', () => {
     usePathname: () => '/',
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useFocusEffect: (cb) => React.useEffect(() => cb(), []),
+  };
+});
+
+// react-native-svg reaches into React Native internals that the jest preset does not provide
+// ("getUseOfValueInStyleWarning is not a function"). The contract these tests care about is
+// which elements are rendered and with what props, so host components are exactly right —
+// the visual correctness of the QR itself is proved in src/logic by decoding it back.
+jest.mock('react-native-svg', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  const stub = (name) => {
+    const Component = (props) => React.createElement(View, props, props.children);
+    Component.displayName = name;
+    return Component;
+  };
+  return {
+    __esModule: true,
+    default: stub('Svg'),
+    Svg: stub('Svg'),
+    Rect: stub('Rect'),
+    Path: stub('Path'),
+    G: stub('G'),
+    Circle: stub('Circle'),
+    Defs: stub('Defs'),
+    LinearGradient: stub('LinearGradient'),
+    Stop: stub('Stop'),
+  };
+});
+
+// expo-camera needs a real camera. The permission flow is what the screens branch on.
+jest.mock('expo-camera', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  const CameraView = (props) => React.createElement(View, props, props.children);
+  CameraView.displayName = 'CameraView';
+  return {
+    CameraView,
+    useCameraPermissions: () => [{ granted: false, canAskAgain: true }, jest.fn()],
   };
 });

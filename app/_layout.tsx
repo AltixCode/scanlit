@@ -10,6 +10,7 @@ import { isRTLLanguage, t } from '@/i18n';
 import { bootstrapAds } from '@/monetization/ads';
 import { shouldShowAds } from '@/monetization/entitlements';
 import { preloadInterstitial } from '@/monetization/interstitial';
+import { useCodeStore } from "@/store/useCodeStore";
 import { usePremiumStore } from '@/store/usePremiumStore';
 import { ThemeProvider, useTheme } from '@/theme';
 
@@ -26,11 +27,14 @@ function RootNavigator() {
   const isPremium = usePremiumStore((s) => s.isPremium);
   const isReady = usePremiumStore((s) => s.isReady);
   const initialize = usePremiumStore((s) => s.initialize);
+  const hydrateCodes = useCodeStore((s) => s.hydrate);
 
   useEffect(() => {
     void initialize();
+    // Restores the scan history and the chosen code colour.
+    void hydrateCodes();
     void SplashScreen.hideAsync();
-  }, [initialize]);
+  }, [initialize, hydrateCodes]);
 
   useEffect(() => {
     // Ads bootstrap (and the iOS tracking prompt) is deferred until we know the user is not
@@ -54,6 +58,8 @@ function RootNavigator() {
       >
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ title: t('settingsTitle') }} />
+        <Stack.Screen name="create" options={{ title: t("createTab") }} />
+        <Stack.Screen name="history" options={{ title: t("historyTab") }} />
         <Stack.Screen
           name="paywall"
           options={{ title: '', presentation: 'modal', headerShown: false }}

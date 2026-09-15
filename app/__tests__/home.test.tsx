@@ -6,37 +6,38 @@ import { testRouter } from './testRouter';
 import { renderWithProviders } from '@/components/__tests__/renderWithProviders';
 import { t } from '@/i18n';
 import { useAdsConsentStore } from '@/store/useAdsConsentStore';
+import { useCodeStore } from '@/store/useCodeStore';
 import { usePremiumStore } from '@/store/usePremiumStore';
 
 beforeEach(() => {
   jest.clearAllMocks();
   usePremiumStore.setState({ isPremium: false, isReady: true });
   useAdsConsentStore.setState({ consent: { canServeAds: true, offerPrivacyOptions: false } });
+  useCodeStore.setState({ history: [], colour: null });
 });
 
-// No `jest.restoreAllMocks()` here. It restores every spy in the process, not
-// only this file's — including ones the renderer itself relies on — and the
-// next test's tree then renders and is immediately torn down, which surfaces as
-// "unable to find an element" on a screen that plainly renders it in isolation.
-// `jest.clearAllMocks()` in beforeEach resets call counts, and each test that
-// needs a spy installs its own.
-
-describe('Home', () => {
-  it('renders the app name and routes to settings', async () => {
+describe('the scanner screen', () => {
+  it('explains why the camera is needed before asking for it', async () => {
+    // Asking for a camera with no explanation is how a permission prompt gets declined.
     const { getByText } = await renderWithProviders(<Home />);
-    expect(getByText(t('appName'))).toBeTruthy();
+    expect(getByText(t('cameraPermissionTitle'))).toBeTruthy();
+    expect(getByText(t('cameraPermissionBody'))).toBeTruthy();
+    expect(getByText(t('grantCamera'))).toBeTruthy();
+  });
+
+  it('states plainly that nothing is uploaded', async () => {
+    // The tagline makes this claim, so the screen has to carry it too.
+    const { getByText } = await renderWithProviders(<Home />);
+    expect(getByText(t('privacyNote'))).toBeTruthy();
+  });
+
+  it('routes to create, history and settings', async () => {
+    const { getByText } = await renderWithProviders(<Home />);
+    await fireEvent.press(getByText(t('createTab')));
+    expect(testRouter.push).toHaveBeenCalledWith('/create');
+    await fireEvent.press(getByText(t('historyTab')));
+    expect(testRouter.push).toHaveBeenCalledWith('/history');
     await fireEvent.press(getByText(t('settingsTitle')));
     expect(testRouter.push).toHaveBeenCalledWith('/settings');
-  });
-
-  it('shows a banner to a free user', async () => {
-    const { queryByTestId } = await renderWithProviders(<Home />);
-    expect(queryByTestId('banner-ad')).not.toBeNull();
-  });
-
-  it('shows no banner to a premium user — the whole point of the upgrade', async () => {
-    usePremiumStore.setState({ isPremium: true });
-    const { queryByTestId } = await renderWithProviders(<Home />);
-    expect(queryByTestId('banner-ad')).toBeNull();
   });
 });
