@@ -147,7 +147,6 @@ export default function Create() {
                   backgroundColor: option.value,
                   borderWidth: colour === option.value ? 3 : 1,
                   borderColor: colour === option.value ? colors.accent : colors.border,
-                  opacity: locked ? 0.6 : 1,
                 }}
               />
             );
