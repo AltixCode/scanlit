@@ -94,7 +94,9 @@ export default function Scan() {
             <View
               style={{
                 marginTop: spacing.md,
-                height: 320,
+                // Sized from the width it is given rather than a fixed height, so the
+                // preview fills a large screen instead of leaving a dead band below it.
+                aspectRatio: 3 / 4,
                 borderRadius: radius.lg,
                 overflow: "hidden",
                 backgroundColor: colors.surfaceAlt,
