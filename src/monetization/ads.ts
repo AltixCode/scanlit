@@ -136,7 +136,9 @@ export async function bootstrapAds(): Promise<void> {
   //   - the SDK last, because an ad request that goes out before consent is recorded is the
   //     policy breach that gets an AdMob account suspended -- and the account is shared by
   //     every app in the portfolio.
-  applyConsent(await gatherConsent());
+  // Idempotent: several screens call this, and re-gathering would re-present the
+  // consent form each time.
+  if (!consentGathered) applyConsent(await gatherConsent());
   if (!consent.canServeAds) {
     // Fail closed. `initialised` is set so nothing re-presents the form on every screen.
     initialised = true;
