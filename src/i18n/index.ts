@@ -99,7 +99,7 @@ export const translations = {
     clearCta: 'Clear',
     lockedTitle: 'Part of the one-time unlock',
     unlockBody: 'One payment removes the ads, opens colours and batches, and keeps every scan.',
-    privacyNote: 'Nothing is uploaded. Scans and codes stay on this phone.',
+    privacyNote: 'Scans and codes stay on this phone.',
   },
   es: {
     appName: 'Scanlit',
@@ -178,7 +178,7 @@ export const translations = {
     clearCta: 'Borrar',
     lockedTitle: 'Incluido en la compra única',
     unlockBody: 'Un pago quita los anuncios, abre colores y lotes, y guarda todos los escaneos.',
-    privacyNote: 'No se sube nada. Los escaneos y códigos se quedan en este teléfono.',
+    privacyNote: 'Los escaneos y códigos se quedan en este teléfono.',
   },
   fr: {
     appName: 'Scanlit',
@@ -257,7 +257,7 @@ export const translations = {
     clearCta: 'Effacer',
     lockedTitle: 'Inclus dans l’achat unique',
     unlockBody: 'Un seul achat supprime les publicités, ouvre couleurs et lots, et conserve tous les scans.',
-    privacyNote: 'Rien n’est envoyé. Scans et codes restent sur ce téléphone.',
+    privacyNote: 'Scans et codes restent sur ce téléphone.',
   },
   de: {
     appName: 'Scanlit',
@@ -336,7 +336,7 @@ export const translations = {
     clearCta: 'Leeren',
     lockedTitle: 'Teil des einmaligen Kaufs',
     unlockBody: 'Ein Kauf entfernt die Werbung, öffnet Farben und Stapel und behält jeden Scan.',
-    privacyNote: 'Nichts wird hochgeladen. Scans und Codes bleiben auf diesem Telefon.',
+    privacyNote: 'Scans und Codes bleiben auf diesem Telefon.',
   },
   ru: {
     appName: 'Scanlit',
@@ -415,7 +415,7 @@ export const translations = {
     clearCta: 'Очистить',
     lockedTitle: 'Входит в разовую покупку',
     unlockBody: 'Одна покупка убирает рекламу, открывает цвета и партии и хранит все сканы.',
-    privacyNote: 'Ничего не отправляется. Сканы и коды остаются на этом телефоне.',
+    privacyNote: 'Сканы и коды остаются на этом телефоне.',
   },
   zh: {
     appName: 'Scanlit',
@@ -494,7 +494,7 @@ export const translations = {
     clearCta: '清除',
     lockedTitle: '包含在一次性解锁中',
     unlockBody: '一次付费即可移除广告、解锁颜色与批量生成，并保留全部扫描记录。',
-    privacyNote: '不上传任何内容。扫描记录和代码都留在这部手机上。',
+    privacyNote: '扫描记录和代码都留在这部手机上。',
   },
   ja: {
     appName: 'Scanlit',
@@ -573,7 +573,7 @@ export const translations = {
     clearCta: '消去',
     lockedTitle: '買い切りの解放に含まれます',
     unlockBody: '一度の購入で広告が消え、色と一括生成が開き、すべてのスキャンが残ります。',
-    privacyNote: '何もアップロードしません。スキャンもコードもこの端末に残ります。',
+    privacyNote: 'スキャンもコードもこの端末に残ります。',
   },
   pt: {
     appName: 'Scanlit',
@@ -652,7 +652,7 @@ export const translations = {
     clearCta: 'Limpar',
     lockedTitle: 'Incluído na compra única',
     unlockBody: 'Um pagamento remove os anúncios, abre cores e lotes, e guarda todas as leituras.',
-    privacyNote: 'Nada é enviado. Leituras e códigos ficam neste telemóvel.',
+    privacyNote: 'Leituras e códigos ficam neste telemóvel.',
   },
   ko: {
     appName: 'Scanlit',
@@ -731,7 +731,7 @@ export const translations = {
     clearCta: '지우기',
     lockedTitle: '일회성 잠금 해제에 포함',
     unlockBody: '한 번의 결제로 광고가 사라지고 색상과 일괄 생성이 열리며 모든 스캔이 남습니다.',
-    privacyNote: '아무것도 업로드하지 않습니다. 스캔과 코드는 이 기기에 남습니다.',
+    privacyNote: '스캔과 코드는 이 기기에 남습니다.',
   },
   it: {
     appName: 'Scanlit',
@@ -810,7 +810,7 @@ export const translations = {
     clearCta: 'Cancella',
     lockedTitle: 'Incluso nell’acquisto unico',
     unlockBody: 'Un pagamento rimuove la pubblicità, apre colori e lotti, e conserva ogni scansione.',
-    privacyNote: 'Nulla viene caricato. Scansioni e codici restano su questo telefono.',
+    privacyNote: 'Scansioni e codici restano su questo telefono.',
   },
   tr: {
     appName: 'Scanlit',
@@ -889,7 +889,7 @@ export const translations = {
     clearCta: 'Temizle',
     lockedTitle: 'Tek seferlik kilit açmaya dahil',
     unlockBody: 'Tek ödeme reklamları kaldırır, renkleri ve toplu üretimi açar ve her taramayı saklar.',
-    privacyNote: 'Hiçbir şey yüklenmez. Taramalar ve kodlar bu telefonda kalır.',
+    privacyNote: 'Taramalar ve kodlar bu telefonda kalır.',
   },
   ar: {
     appName: 'Scanlit',
@@ -968,7 +968,7 @@ export const translations = {
     clearCta: 'مسح',
     lockedTitle: 'ضمن الفتح لمرة واحدة',
     unlockBody: 'دفعة واحدة تزيل الإعلانات وتفتح الألوان والدفعات وتحفظ كل مسح.',
-    privacyNote: 'لا يُرفع شيء. تبقى المسوحات والرموز على هذا الهاتف.',
+    privacyNote: 'تبقى المسوحات والرموز على هذا الهاتف.',
   },
   fa: {
     appName: 'Scanlit',
@@ -1047,7 +1047,7 @@ export const translations = {
     clearCta: 'پاک کردن',
     lockedTitle: 'بخشی از باز کردن یک‌باره',
     unlockBody: 'یک پرداخت تبلیغات را حذف می‌کند، رنگ‌ها و دسته‌ها را باز می‌کند و همهٔ اسکن‌ها را نگه می‌دارد.',
-    privacyNote: 'چیزی آپلود نمی‌شود. اسکن‌ها و کدها روی همین گوشی می‌مانند.',
+    privacyNote: 'اسکن‌ها و کدها روی همین گوشی می‌مانند.',
   },
   el: {
     appName: 'Scanlit',
@@ -1126,7 +1126,7 @@ export const translations = {
     clearCta: 'Καθαρισμός',
     lockedTitle: 'Μέρος του εφάπαξ ξεκλειδώματος',
     unlockBody: 'Μία πληρωμή αφαιρεί τις διαφημίσεις, ανοίγει χρώματα και παρτίδες και κρατά κάθε σάρωση.',
-    privacyNote: 'Τίποτα δεν ανεβαίνει. Σαρώσεις και κωδικοί μένουν σε αυτό το τηλέφωνο.',
+    privacyNote: 'Σαρώσεις και κωδικοί μένουν σε αυτό το τηλέφωνο.',
   },
 } as const;
 
