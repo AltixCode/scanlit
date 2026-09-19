@@ -1,0 +1,35 @@
+{
+  "identifier": "77FC7169-7F4F-4572-B260-2322BEF8381D",
+  "nonRenewingSubscriptions": [],
+  "products": [
+    {
+      "displayPrice": "4.99",
+      "familyShareable": false,
+      "internalID": "1C526F92-4C9B-4825-B1FE-EE2F00E38896",
+      "localizations": [
+        {
+          "description": "scanlit remove ads lifetime unlock",
+          "displayName": "scanlit remove ads",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.altixcode.scanlit.removeads",
+      "referenceName": "scanlit remove ads",
+      "type": "NonConsumable"
+    }
+  ],
+  "settings": {
+    "_applicationInternalID": "",
+    "_developerTeamID": "",
+    "_failTransactionsEnabled": false,
+    "_lastSynchronizedDate": 0,
+    "_locale": "en_US",
+    "_storefront": "USA",
+    "_storeKitErrors": []
+  },
+  "subscriptionGroups": [],
+  "version": {
+    "major": 4,
+    "minor": 0
+  }
+}
