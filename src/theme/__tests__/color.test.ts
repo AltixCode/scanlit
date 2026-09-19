@@ -1,5 +1,10 @@
-import { contrastRatio, luminance, mix, readableTextOn, withAlpha } from '../color';
-import { darkPalette, lightPalette } from '../tokens';
+import {
+  contrastRatio,
+  luminance,
+  mix,
+  readableTextOn,
+  withAlpha,
+} from '../color';
 import { darkPalette, lightPalette } from '../tokens';
 
 describe('mix', () => {
@@ -108,13 +113,13 @@ describe('a component boundary can be seen', () => {
 
   it('keeps borderStrong at 3:1 against the dark background', () => {
     expect(
-      contrastRatio(darkPalette.borderStrong, darkPalette.background)
+      contrastRatio(darkPalette.borderStrong, darkPalette.background),
     ).toBeGreaterThanOrEqual(MIN_COMPONENT_CONTRAST);
   });
 
   it('keeps borderStrong at 3:1 against the light background', () => {
     expect(
-      contrastRatio(lightPalette.borderStrong, lightPalette.background)
+      contrastRatio(lightPalette.borderStrong, lightPalette.background),
     ).toBeGreaterThanOrEqual(MIN_COMPONENT_CONTRAST);
   });
 });

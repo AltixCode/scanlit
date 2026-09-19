@@ -1,9 +1,16 @@
+import Feather from '@expo/vector-icons/Feather';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Linking, Pressable, ScrollView, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Linking,
+  Pressable,
+  ScrollView,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Button, Text } from '@/components/ui';
+import { Button, Card, Text } from '@/components/ui';
 import { t } from '@/i18n';
 import { PRIVACY_POLICY_URL, TERMS_URL } from '@/monetization/config';
 import { usePremiumStore } from '@/store/usePremiumStore';
@@ -69,14 +76,25 @@ export default function Paywall() {
   const price = lifetime?.product.priceString;
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background, paddingTop: insets.top }}>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: colors.background,
+        paddingTop: insets.top,
+      }}
+    >
       <View style={{ alignItems: 'flex-end', padding: spacing.base }}>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t('close')}
           hitSlop={12}
           onPress={() => router.back()}
-          style={{ minWidth: 44, minHeight: 44, alignItems: 'flex-end', justifyContent: 'center' }}
+          style={{
+            minWidth: 44,
+            minHeight: 44,
+            alignItems: 'flex-end',
+            justifyContent: 'center',
+          }}
         >
           <Text variant="body" tone="muted">
             {t('close')}
@@ -84,18 +102,28 @@ export default function Paywall() {
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingBottom: spacing['3xl'], ...tabletColumn, flexGrow: 1, justifyContent: 'center' }}>
-        {/* Numbered, not ticked, and the promise leads.
- 
+      <ScrollView
+        contentContainerStyle={{
+          padding: spacing.xl,
+          paddingBottom: spacing['3xl'],
+          ...tabletColumn,
+          flexGrow: 1,
+          justifyContent: 'center',
+        }}
+      >
+        {/* Two cards, side by side, not a numbered list and not a table.
+
             29 of 44 apps in this portfolio shipped one paywall file byte for
             byte, and Apple rejected under 4.3(a) naming "multiple similar apps
             using a repackaged app template". foldup, knotter and poursort are
             the sharpest case: all three are rejected, and all three also shared
             a home-screen structure that measured 1.00 identical.
- 
-            So this one leads with the no-subscription promise as the headline
-            rather than burying it in a card, and numbers what you get instead
-            of ticking it. Same claims, different page. */}
+
+            So this one leads with the no-subscription promise as the headline,
+            then puts the free experience and the unlocked one in two bordered
+            cards next to each other -- a comparison read at a glance rather
+            than a feature-matrix grid (packpixel's shape) or a toggle between
+            single panels (poursort's shape). Same claims, different page. */}
         <Text variant="micro" tone="accent">
           {t('antiSubTitle')}
         </Text>
@@ -106,38 +134,75 @@ export default function Paywall() {
           {t('antiSubHeadline')}
         </Text>
 
-        <View style={{ marginTop: spacing['2xl'], gap: spacing.xl }}>
-          {benefits.map((benefit, index) => (
-            <View key={benefit.title} style={{ flexDirection: 'row', gap: spacing.base }}>
-              <View
-                style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: 14,
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Text variant="micro" tone="accent">
-                  {index + 1}
-                </Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text variant="bodyStrong">{t(benefit.title)}</Text>
-                <Text variant="caption" tone="muted" style={{ marginTop: 2 }}>
-                  {t(benefit.desc)}
-                </Text>
-              </View>
+        <View
+          style={{
+            marginTop: spacing['2xl'],
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: spacing.base,
+          }}
+        >
+          <Card style={{ flexGrow: 1, flexBasis: 140, minWidth: 140 }}>
+            <Text variant="micro" tone="muted">
+              {t('freeCardTitle')}
+            </Text>
+            <Text
+              variant="caption"
+              tone="muted"
+              style={{ marginTop: spacing.sm }}
+            >
+              {t('freeCardDesc')}
+            </Text>
+          </Card>
+
+          <Card
+            style={{
+              flexGrow: 1,
+              flexBasis: 140,
+              minWidth: 140,
+              borderWidth: 2,
+              borderColor: colors.accent,
+            }}
+          >
+            <Text variant="micro" tone="accent">
+              {t('unlockedCardTitle')}
+            </Text>
+            <View style={{ marginTop: spacing.sm, gap: spacing.md }}>
+              {benefits.map((benefit) => (
+                <View
+                  key={benefit.title}
+                  style={{ flexDirection: 'row', gap: spacing.sm }}
+                >
+                  <Feather
+                    name="check"
+                    size={16}
+                    color={colors.accent}
+                    style={{ marginTop: 3 }}
+                  />
+                  <View style={{ flex: 1 }}>
+                    <Text variant="bodyStrong">{t(benefit.title)}</Text>
+                    <Text
+                      variant="caption"
+                      tone="muted"
+                      style={{ marginTop: 2 }}
+                    >
+                      {t(benefit.desc)}
+                    </Text>
+                  </View>
+                </View>
+              ))}
             </View>
-          ))}
+          </Card>
         </View>
 
         <View style={{ marginTop: spacing['2xl'] }}>
           {lifetime ? (
             <Button
-              label={price ? t('lifetimeAccess', { price }) : t('lifetimeAccessPlain')}
+              label={
+                price
+                  ? t('lifetimeAccess', { price })
+                  : t('lifetimeAccessPlain')
+              }
               size="lg"
               fullWidth
               loading={isPurchasing}
@@ -155,18 +220,32 @@ export default function Paywall() {
           ) : (
             <View style={{ padding: spacing.xl, alignItems: 'center' }}>
               <ActivityIndicator color={colors.textMuted} />
-              <Text variant="caption" tone="muted" style={{ marginTop: spacing.md }}>
+              <Text
+                variant="caption"
+                tone="muted"
+                style={{ marginTop: spacing.md }}
+              >
                 {t('loadingPrice')}
               </Text>
             </View>
           )}
-          <Text variant="caption" tone="muted" align="center" style={{ marginTop: spacing.md }}>
+          <Text
+            variant="caption"
+            tone="muted"
+            align="center"
+            style={{ marginTop: spacing.md }}
+          >
             {t('oneTimePayment')}
           </Text>
         </View>
 
         {error ? (
-          <Text variant="caption" tone="danger" align="center" style={{ marginTop: spacing.base }}>
+          <Text
+            variant="caption"
+            tone="danger"
+            align="center"
+            style={{ marginTop: spacing.base }}
+          >
             {error}
           </Text>
         ) : null}
@@ -196,7 +275,12 @@ export default function Paywall() {
           style={{ marginTop: spacing.lg }}
         />
 
-        <Text variant="micro" tone="faint" align="center" style={{ marginTop: spacing.xl }}>
+        <Text
+          variant="micro"
+          tone="faint"
+          align="center"
+          style={{ marginTop: spacing.xl }}
+        >
           {t('adsDisclosure')}
         </Text>
         <View
