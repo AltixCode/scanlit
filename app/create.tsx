@@ -1,17 +1,28 @@
-import * as Clipboard from 'expo-clipboard';
-import { useRouter } from 'expo-router';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import * as Clipboard from "expo-clipboard";
+import { useRouter } from "expo-router";
+// The legacy entry keeps the function-style save API working after SDK 57
+// deprecated it on the root export — see packpixel/src/engine/imageProcessor.ts
+// for the same note against the same SDK version.
+import * as MediaLibrary from "expo-media-library/legacy";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { Alert, Pressable, StyleSheet, TextInput, View } from "react-native";
+import { captureRef } from "react-native-view-shot";
 
-import { BannerAdSlot } from '@/components/BannerAdSlot';
-import { QrView } from '@/components/QrView';
-import { Button, Screen, Text } from '@/components/ui';
-import { t } from '@/i18n';
-import { bestLevelFor, qrMatrix } from '@/logic/codes';
-import { useCodeStore } from '@/store/useCodeStore';
-import { usePremiumStore } from '@/store/usePremiumStore';
-import { CODE_COLOURS, CODE_QUIET_ZONE } from '@/theme/codeColours';
-import { contrastRatio, useTheme } from '@/theme';
+import { BannerAdSlot } from "@/components/BannerAdSlot";
+import { QrView } from "@/components/QrView";
+import { Button, Screen, Text } from "@/components/ui";
+import { t } from "@/i18n";
+import { bestLevelFor, qrMatrix } from "@/logic/codes";
+import { useCodeStore } from "@/store/useCodeStore";
+import { usePremiumStore } from "@/store/usePremiumStore";
+import { CODE_COLOURS, CODE_QUIET_ZONE } from "@/theme/codeColours";
+import { contrastRatio, useTheme } from "@/theme";
 
 const MIN_TOUCH_TARGET = 44;
 /** Below this a coloured code stops reading reliably against white. */
@@ -26,10 +37,15 @@ export default function Create() {
   const setColour = useCodeStore((s) => s.setColour);
   const splitBatch = useCodeStore((s) => s.splitBatch);
 
-  const [text, setText] = useState('');
-  const [matrices, setMatrices] = useState<{ text: string; matrix: boolean[][] }[]>([]);
+  const [text, setText] = useState("");
+  const [matrices, setMatrices] = useState<
+    { text: string; matrix: boolean[][] }[]
+  >([]);
 
-  const lines = useMemo(() => splitBatch(text, isPremium), [splitBatch, text, isPremium]);
+  const lines = useMemo(
+    () => splitBatch(text, isPremium),
+    [splitBatch, text, isPremium],
+  );
 
   // Encoding is async and the input changes on every keystroke. Everything, including the
   // empty case, is set from inside the async body: a synchronous setState in an effect is
@@ -56,10 +72,10 @@ export default function Create() {
 
   const pickColour = useCallback(
     (value: string | null) => {
-      if (setColour(value, isPremium) === 'locked') {
-        Alert.alert(t('lockedTitle'), t('unlockBody'), [
-          { text: t('cancel'), style: 'cancel' },
-          { text: t('removeAdsCta'), onPress: () => router.push('/paywall') },
+      if (setColour(value, isPremium) === "locked") {
+        Alert.alert(t("lockedTitle"), t("unlockBody"), [
+          { text: t("cancel"), style: "cancel" },
+          { text: t("removeAdsCta"), onPress: () => router.push("/paywall") },
         ]);
       }
     },
@@ -69,18 +85,43 @@ export default function Create() {
   const copy = useCallback(() => {
     if (!text.trim()) return;
     void Clipboard.setStringAsync(text.trim());
-    Alert.alert(t('copied'));
+    Alert.alert(t("copied"));
   }, [text]);
+
+  // One capture target per rendered code, keyed by its text -- a batch can
+  // hold several codes and each needs its own snapshot to save.
+  const codeRefs = useRef<Record<string, View | null>>({});
+
+  const saveCode = useCallback(async (line: string) => {
+    const target = codeRefs.current[line];
+    if (!target) return;
+    try {
+      // Add-only: this app never reads the photo library, so it asks for
+      // write access alone -- see the NSPhotoLibraryAddUsageDescription note
+      // in app.config.ts.
+      const { status } = await MediaLibrary.requestPermissionsAsync(true);
+      if (status !== "granted") {
+        Alert.alert(t("photoPermissionDenied"));
+        return;
+      }
+      const uri = await captureRef(target, { format: "png", quality: 1 });
+      await MediaLibrary.saveToLibraryAsync(uri);
+      Alert.alert(t("savedToPhotos"));
+    } catch {
+      Alert.alert(t("savePhotoFailed"));
+    }
+  }, []);
 
   // A pale code on white does not scan. Saying so is more use than letting someone print it.
   const tooLight =
-    colour !== null && contrastRatio(colour, CODE_QUIET_ZONE) < MIN_CODE_CONTRAST;
+    colour !== null &&
+    contrastRatio(colour, CODE_QUIET_ZONE) < MIN_CODE_CONTRAST;
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <Screen scroll>
         <Text variant="micro" tone="faint">
-          {t('createLabel').toUpperCase()}
+          {t("createLabel").toUpperCase()}
         </Text>
         <TextInput
           value={text}
@@ -88,9 +129,9 @@ export default function Create() {
           multiline
           autoCapitalize="none"
           autoCorrect={false}
-          placeholder={t('batchHint')}
+          placeholder={t("batchHint")}
           placeholderTextColor={colors.textFaint}
-          accessibilityLabel={t('createLabel')}
+          accessibilityLabel={t("createLabel")}
           style={{
             minHeight: 96,
             marginTop: spacing.xs,
@@ -103,22 +144,24 @@ export default function Create() {
 
         {!isPremium ? (
           <Text variant="micro" tone="faint" style={{ marginTop: spacing.xs }}>
-            {t('batchLockedNote')}
+            {t("batchLockedNote")}
           </Text>
         ) : null}
 
         <Text variant="micro" tone="faint" style={{ marginTop: spacing.lg }}>
-          {t('colourLabel').toUpperCase()}
+          {t("colourLabel").toUpperCase()}
         </Text>
-        <View style={[styles.chips, { gap: spacing.sm, marginTop: spacing.xs }]}>
+        <View
+          style={[styles.chips, { gap: spacing.sm, marginTop: spacing.xs }]}
+        >
           <Pressable
             accessibilityRole="radio"
-            accessibilityLabel={t('colourDefault')}
+            accessibilityLabel={t("colourDefault")}
             accessibilityState={{ selected: colour === null }}
             onPress={() => pickColour(null)}
             style={{
               minHeight: MIN_TOUCH_TARGET,
-              justifyContent: 'center',
+              justifyContent: "center",
               paddingHorizontal: spacing.base,
               borderRadius: radius.full,
               backgroundColor: colors.surfaceAlt,
@@ -126,7 +169,7 @@ export default function Create() {
               borderColor: colour === null ? colors.accent : colors.border,
             }}
           >
-            <Text variant="caption">{t('colourDefault')}</Text>
+            <Text variant="caption">{t("colourDefault")}</Text>
           </Pressable>
 
           {CODE_COLOURS.map((option) => {
@@ -136,7 +179,7 @@ export default function Create() {
                 key={option.value}
                 accessibilityRole="radio"
                 accessibilityLabel={
-                  locked ? `${option.name} — ${t('lockedTitle')}` : option.name
+                  locked ? `${option.name} — ${t("lockedTitle")}` : option.name
                 }
                 accessibilityState={{ selected: colour === option.value }}
                 onPress={() => pickColour(option.value)}
@@ -146,7 +189,8 @@ export default function Create() {
                   borderRadius: radius.full,
                   backgroundColor: option.value,
                   borderWidth: colour === option.value ? 3 : 1,
-                  borderColor: colour === option.value ? colors.accent : colors.border,
+                  borderColor:
+                    colour === option.value ? colors.accent : colors.border,
                 }}
               />
             );
@@ -154,25 +198,50 @@ export default function Create() {
         </View>
 
         {tooLight ? (
-          <Text variant="caption" tone="danger" style={{ marginTop: spacing.sm }}>
-            {t('contrastWarning')}
+          <Text
+            variant="caption"
+            tone="danger"
+            style={{ marginTop: spacing.sm }}
+          >
+            {t("contrastWarning")}
           </Text>
         ) : null}
 
         {matrices.map(({ text: line, matrix }) => (
-          <View key={line} style={{ alignItems: 'center', marginTop: spacing.lg }}>
-            <View accessible accessibilityLabel={t('codeFor', { text: line })}>
+          <View
+            key={line}
+            style={{ alignItems: "center", marginTop: spacing.lg }}
+          >
+            <View
+              ref={(node) => {
+                codeRefs.current[line] = node;
+              }}
+              collapsable={false}
+              accessible
+              accessibilityLabel={t("codeFor", { text: line })}
+              style={{ backgroundColor: colors.onAccent, padding: spacing.sm }}
+            >
               <QrView matrix={matrix} size={220} colour={colour} />
             </View>
-            <Text variant="caption" tone="muted" style={{ marginTop: spacing.xs }}>
+            <Text
+              variant="caption"
+              tone="muted"
+              style={{ marginTop: spacing.xs }}
+            >
               {line}
             </Text>
+            <Button
+              label={t("saveCta")}
+              variant="secondary"
+              onPress={() => void saveCode(line)}
+              style={{ marginTop: spacing.xs }}
+            />
           </View>
         ))}
 
         {text.trim() ? (
           <Button
-            label={t('copyCta')}
+            label={t("copyCta")}
             variant="secondary"
             fullWidth
             onPress={copy}
@@ -181,7 +250,7 @@ export default function Create() {
         ) : null}
 
         <Text variant="micro" tone="faint" style={{ marginTop: spacing.lg }}>
-          {t('privacyNote')}
+          {t("privacyNote")}
         </Text>
       </Screen>
       <BannerAdSlot />
@@ -190,5 +259,5 @@ export default function Create() {
 }
 
 const styles = StyleSheet.create({
-  chips: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' },
+  chips: { flexDirection: "row", alignItems: "center", flexWrap: "wrap" },
 });

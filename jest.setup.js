@@ -6,41 +6,45 @@
 // element" on a screen that plainly renders it in isolation. Awaiting it here
 // — registered before any suite's own afterEach, so it runs last — makes the
 // teardown finish inside the test that caused it.
-const { cleanup } = require('@testing-library/react-native');
+const { cleanup } = require("@testing-library/react-native");
 afterEach(async () => {
   await cleanup();
 });
 
-process.env.EXPO_OS = process.env.EXPO_OS || 'ios';
+process.env.EXPO_OS = process.env.EXPO_OS || "ios";
 
 // Reanimated's worklet runtime is native-only. The shipped mock renders the
 // animated components synchronously, which is what component tests need.
-jest.mock('react-native-reanimated', () => {
+jest.mock("react-native-reanimated", () => {
   // Reanimated's own mock omits getUseOfValueInStyleWarning — its source literally says
   // "ADD ME IF NEEDED". The babel plugin injects a call to it around every inline style
   // object, so without this any screen with an inline style throws
   // "getUseOfValueInStyleWarning is not a function" at render time, in tests only.
-  const mock = require('react-native-reanimated/mock');
+  const mock = require("react-native-reanimated/mock");
   return { ...mock, getUseOfValueInStyleWarning: () => undefined };
 });
 
-jest.mock('expo-haptics', () => ({
+jest.mock("expo-haptics", () => ({
   impactAsync: jest.fn(),
   notificationAsync: jest.fn(),
   selectionAsync: jest.fn(),
-  ImpactFeedbackStyle: { Light: 'light', Medium: 'medium', Heavy: 'heavy' },
-  NotificationFeedbackType: { Success: 'success', Warning: 'warning', Error: 'error' },
+  ImpactFeedbackStyle: { Light: "light", Medium: "medium", Heavy: "heavy" },
+  NotificationFeedbackType: {
+    Success: "success",
+    Warning: "warning",
+    Error: "error",
+  },
 }));
 
-jest.mock('@react-native-async-storage/async-storage', () =>
-  require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
+jest.mock("@react-native-async-storage/async-storage", () =>
+  require("@react-native-async-storage/async-storage/jest/async-storage-mock"),
 );
 
 // The ads SDK is native-only; the contract we care about is "does a banner
 // element appear at all", so a marker view is enough.
-jest.mock('react-native-google-mobile-ads', () => {
-  const React = require('react');
-  const { View } = require('react-native');
+jest.mock("react-native-google-mobile-ads", () => {
+  const React = require("react");
+  const { View } = require("react-native");
   return {
     __esModule: true,
     // One instance, not a fresh pair of mocks per call. `mobileAds()` returning
@@ -54,22 +58,44 @@ jest.mock('react-native-google-mobile-ads', () => {
       };
       return () => instance;
     })(),
-    BannerAd: (props) => React.createElement(View, { testID: 'banner-ad', ...props }),
-    BannerAdSize: { ANCHORED_ADAPTIVE_BANNER: 'ANCHORED_ADAPTIVE_BANNER' },
-    MaxAdContentRating: { G: 'G' },
-    InterstitialAd: { createForAdRequest: jest.fn(() => ({ load: jest.fn(), show: jest.fn(), addAdEventListener: jest.fn(() => jest.fn()) })) },
-    RewardedAd: { createForAdRequest: jest.fn(() => ({ load: jest.fn(), show: jest.fn(), addAdEventListener: jest.fn(() => jest.fn()) })) },
-    AdEventType: { LOADED: 'loaded', CLOSED: 'closed', ERROR: 'error' },
-    RewardedAdEventType: { LOADED: 'rewarded_loaded', EARNED_REWARD: 'rewarded_earned_reward' },
+    BannerAd: (props) =>
+      React.createElement(View, { testID: "banner-ad", ...props }),
+    BannerAdSize: { ANCHORED_ADAPTIVE_BANNER: "ANCHORED_ADAPTIVE_BANNER" },
+    MaxAdContentRating: { G: "G" },
+    InterstitialAd: {
+      createForAdRequest: jest.fn(() => ({
+        load: jest.fn(),
+        show: jest.fn(),
+        addAdEventListener: jest.fn(() => jest.fn()),
+      })),
+    },
+    RewardedAd: {
+      createForAdRequest: jest.fn(() => ({
+        load: jest.fn(),
+        show: jest.fn(),
+        addAdEventListener: jest.fn(() => jest.fn()),
+      })),
+    },
+    AdEventType: { LOADED: "loaded", CLOSED: "closed", ERROR: "error" },
+    RewardedAdEventType: {
+      LOADED: "rewarded_loaded",
+      EARNED_REWARD: "rewarded_earned_reward",
+    },
     AdsConsent: {
-      gatherConsent: jest.fn().mockResolvedValue({ status: 'NOT_REQUIRED', canRequestAds: true, privacyOptionsRequirementStatus: 'NOT_REQUIRED' }),
+      gatherConsent: jest
+        .fn()
+        .mockResolvedValue({
+          status: "NOT_REQUIRED",
+          canRequestAds: true,
+          privacyOptionsRequirementStatus: "NOT_REQUIRED",
+        }),
       showPrivacyOptionsForm: jest.fn(),
     },
-    AdsConsentDebugGeography: { OTHER: 'OTHER', EEA: 'EEA' },
+    AdsConsentDebugGeography: { OTHER: "OTHER", EEA: "EEA" },
   };
 });
 
-jest.mock('react-native-purchases', () => ({
+jest.mock("react-native-purchases", () => ({
   __esModule: true,
   default: {
     configure: jest.fn().mockResolvedValue(undefined),
@@ -81,23 +107,27 @@ jest.mock('react-native-purchases', () => ({
     addCustomerInfoUpdateListener: jest.fn(),
     removeCustomerInfoUpdateListener: jest.fn(),
   },
-  LOG_LEVEL: { WARN: 'WARN', DEBUG: 'DEBUG' },
+  LOG_LEVEL: { WARN: "WARN", DEBUG: "DEBUG" },
 }));
 
-jest.mock('expo-localization', () => ({
-  getLocales: jest.fn(() => [{ languageCode: 'en', regionCode: 'US' }]),
+jest.mock("expo-localization", () => ({
+  getLocales: jest.fn(() => [{ languageCode: "en", regionCode: "US" }]),
   getCalendars: jest.fn(() => []),
 }));
 
-jest.mock('expo-tracking-transparency', () => ({
-  getTrackingPermissionsAsync: jest.fn().mockResolvedValue({ granted: false, canAskAgain: true }),
-  requestTrackingPermissionsAsync: jest.fn().mockResolvedValue({ granted: false }),
+jest.mock("expo-tracking-transparency", () => ({
+  getTrackingPermissionsAsync: jest
+    .fn()
+    .mockResolvedValue({ granted: false, canAskAgain: true }),
+  requestTrackingPermissionsAsync: jest
+    .fn()
+    .mockResolvedValue({ granted: false }),
 }));
 
 // One stable router object, so a test can assert on navigation by calling
 // `useRouter()` itself — a fresh set of spies per call would be unobservable.
-jest.mock('expo-router', () => {
-  const React = require('react');
+jest.mock("expo-router", () => {
+  const React = require("react");
   const router = {
     push: jest.fn(),
     replace: jest.fn(),
@@ -124,7 +154,7 @@ jest.mock('expo-router', () => {
     },
     useLocalSearchParams: () => params,
     useSegments: () => [],
-    usePathname: () => '/',
+    usePathname: () => "/",
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useFocusEffect: (cb) => React.useEffect(() => cb(), []),
   };
@@ -134,36 +164,53 @@ jest.mock('expo-router', () => {
 // ("getUseOfValueInStyleWarning is not a function"). The contract these tests care about is
 // which elements are rendered and with what props, so host components are exactly right —
 // the visual correctness of the QR itself is proved in src/logic by decoding it back.
-jest.mock('react-native-svg', () => {
-  const React = require('react');
-  const { View } = require('react-native');
+jest.mock("react-native-svg", () => {
+  const React = require("react");
+  const { View } = require("react-native");
   const stub = (name) => {
-    const Component = (props) => React.createElement(View, props, props.children);
+    const Component = (props) =>
+      React.createElement(View, props, props.children);
     Component.displayName = name;
     return Component;
   };
   return {
     __esModule: true,
-    default: stub('Svg'),
-    Svg: stub('Svg'),
-    Rect: stub('Rect'),
-    Path: stub('Path'),
-    G: stub('G'),
-    Circle: stub('Circle'),
-    Defs: stub('Defs'),
-    LinearGradient: stub('LinearGradient'),
-    Stop: stub('Stop'),
+    default: stub("Svg"),
+    Svg: stub("Svg"),
+    Rect: stub("Rect"),
+    Path: stub("Path"),
+    G: stub("G"),
+    Circle: stub("Circle"),
+    Defs: stub("Defs"),
+    LinearGradient: stub("LinearGradient"),
+    Stop: stub("Stop"),
   };
 });
 
 // expo-camera needs a real camera. The permission flow is what the screens branch on.
-jest.mock('expo-camera', () => {
-  const React = require('react');
-  const { View } = require('react-native');
-  const CameraView = (props) => React.createElement(View, props, props.children);
-  CameraView.displayName = 'CameraView';
+jest.mock("expo-camera", () => {
+  const React = require("react");
+  const { View } = require("react-native");
+  const CameraView = (props) =>
+    React.createElement(View, props, props.children);
+  CameraView.displayName = "CameraView";
   return {
     CameraView,
-    useCameraPermissions: () => [{ granted: false, canAskAgain: true }, jest.fn()],
+    useCameraPermissions: () => [
+      { granted: false, canAskAgain: true },
+      jest.fn(),
+    ],
   };
 });
+
+// Saving a rendered code needs a native snapshot and a photo library write, neither of
+// which exist under Jest. Tests drive the permission/success/failure branches through
+// these mocks instead.
+jest.mock("expo-media-library/legacy", () => ({
+  requestPermissionsAsync: jest.fn(async () => ({ status: "granted" })),
+  saveToLibraryAsync: jest.fn(async () => {}),
+}));
+
+jest.mock("react-native-view-shot", () => ({
+  captureRef: jest.fn(async () => "file:///tmp/fake-code.png"),
+}));
